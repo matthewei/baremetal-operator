@@ -1,30 +1,30 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-namespace: baremetal-operator-system
+namespace: cmetal
 resources:
-- ../../../config/namespace
-- ../../base
+  - ../../../config/namespace
+  - ../../base
 
 components:
-- ../../components/basic-auth
-- ../../components/tls
+  - ../../components/basic-auth
+  - ../../components/tls
 
 configMapGenerator:
-- envs:
-  - ironic_bmo_configmap.env
-  name: ironic-bmo-configmap
-  behavior: create
+  - envs:
+      - ironic_bmo_configmap.env
+    name: ironic-bmo-configmap
+    behavior: create
 
 patches:
   - path: ironic-patch.yaml
 
 # NOTE: These credentials are generated automatically in hack/ci-e2e.sh
 secretGenerator:
-- name: ironic-htpasswd
-  behavior: create
-  files:
-  - htpasswd=ironic-htpasswd
-  type: Opaque
+  - name: ironic-htpasswd
+    behavior: create
+    files:
+      - htpasswd=ironic-htpasswd
+    type: Opaque
 
 replacements:
   # Replace IRONIC_HOST_IP in certificates with the PROVISIONING_IP from the configmap

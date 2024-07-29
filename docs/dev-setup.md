@@ -9,7 +9,7 @@
 1. Create a namespace to host the operator
 
     ```bash
-    kubectl create namespace baremetal-operator-system
+    kubectl create namespace cmetal
     ```
 
 1. Install cert-manager

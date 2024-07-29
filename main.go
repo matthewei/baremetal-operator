@@ -35,15 +35,14 @@ import (
 	"github.com/metal3-io/baremetal-operator/pkg/secretutils"
 	"github.com/metal3-io/baremetal-operator/pkg/version"
 	"github.com/pkg/errors"
-	"go.uber.org/zap/zapcore"
 	k8sruntime "k8s.io/apimachinery/pkg/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	cliflag "k8s.io/component-base/cli/flag"
+	"k8s.io/klog/v2"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/cache"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
-	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 )
@@ -179,15 +178,7 @@ func main() {
 
 	flag.Parse()
 
-	logOpts := zap.Options{}
-	if devLogging {
-		logOpts.Development = true
-		logOpts.TimeEncoder = zapcore.ISO8601TimeEncoder
-	} else {
-		logOpts.TimeEncoder = zapcore.EpochTimeEncoder
-	}
-	ctrl.SetLogger(zap.New(zap.UseFlagOptions(&logOpts)))
-
+	ctrl.SetLogger(klog.NewKlogr())
 	printVersion()
 
 	enableWebhook := webhookPort != 0
@@ -276,7 +267,7 @@ func main() {
 		ctrl.Log.Info("using demo provisioner")
 		provisionerFactory = &demo.Demo{}
 	} else {
-		provLog := zap.New(zap.UseFlagOptions(&logOpts)).WithName("provisioner")
+		provLog := ctrl.Log.WithName("controllers").WithName("provisioner")
 		provisionerFactory = ironic.NewProvisionerFactory(provLog, preprovImgEnable)
 	}
 

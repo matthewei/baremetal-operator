@@ -120,7 +120,7 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 		}
 	}
 
-	bmoIronicNamespace := "baremetal-operator-system"
+	bmoIronicNamespace := "cmetal"
 
 	if e2eConfig.GetVariable("DEPLOY_IRONIC") != "false" {
 		// Install Ironic

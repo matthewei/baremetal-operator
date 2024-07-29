@@ -59,3 +59,10 @@ config/overlays/temp
 
 # release-notes
 /releasenotes
+
+# editor and IDE paraphernalia
+.idea
+.vscode
+*.swp
+*.swo
+*~

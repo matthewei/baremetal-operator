@@ -179,7 +179,7 @@ const hardwareDetailsRelease04 = `
 // The function returns the namespace object, with its cancelFunc. These can be used to clean up the created resources.
 
 func RunUpgradeTest(ctx context.Context, input *BMOIronicUpgradeInput, upgradeClusterProxy framework.ClusterProxy) (*corev1.Namespace, context.CancelFunc) {
-	bmoIronicNamespace := "baremetal-operator-system"
+	bmoIronicNamespace := "cmetal"
 	initBMOKustomization := input.InitBMOKustomization
 	initIronicKustomization := input.InitIronicKustomization
 	upgradeEntityName := input.UpgradeEntityName
@@ -419,12 +419,12 @@ var _ = Describe("Upgrade", Label("optional", "upgrade"), func() {
 })
 
 // cleanupBaremetalOperatorSystem removes the kustomization from the cluster and waits for the
-// baremetal-operator-system namespace to be deleted.
+// cmetal namespace to be deleted.
 func cleanupBaremetalOperatorSystem(ctx context.Context, clusterProxy framework.ClusterProxy, kustomization string) {
 	BuildAndRemoveKustomization(ctx, kustomization, clusterProxy)
 	// We need to ensure that the namespace actually gets deleted.
 	WaitForNamespaceDeleted(ctx, WaitForNamespaceDeletedInput{
 		Getter:    clusterProxy.GetClient(),
-		Namespace: corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: "baremetal-operator-system"}},
+		Namespace: corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: "cmetal"}},
 	}, e2eConfig.GetIntervals("default", "wait-namespace-deleted")...)
 }

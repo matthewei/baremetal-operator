@@ -161,7 +161,7 @@ if [[ "${DEPLOY_IRONIC}" == "true" ]]; then
     # Create a temporary overlay where we can make changes.
     pushd "${TEMP_IRONIC_OVERLAY}"
     ${KUSTOMIZE} create --resources=../../../config/namespace \
-    --namespace=baremetal-operator-system --nameprefix=baremetal-operator-
+    --namespace=cmetal --nameprefix=baremetal-operator-
 
     if [ "${DEPLOY_BASIC_AUTH}" == "true" ]; then
         ${KUSTOMIZE} edit add secret ironic-htpasswd --from-file=htpasswd=ironic-htpasswd
@@ -198,7 +198,7 @@ if [[ "${DEPLOY_BMO}" == "true" ]]; then
     # Create a temporary overlay where we can make changes.
     pushd "${TEMP_BMO_OVERLAY}"
     ${KUSTOMIZE} create --resources=../../base,../../namespace \
-    --namespace=baremetal-operator-system
+    --namespace=cmetal
 
     if [ "${DEPLOY_BASIC_AUTH}" == "true" ]; then
         ${KUSTOMIZE} edit add component ../../components/basic-auth

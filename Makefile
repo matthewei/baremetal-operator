@@ -1,4 +1,4 @@
-RUN_NAMESPACE = metal3
+RUN_NAMESPACE = cmetal
 GO_TEST_FLAGS = $(TEST_FLAGS)
 DEBUG = --debug
 COVER_PROFILE = cover.out
@@ -80,8 +80,8 @@ help:  ## Display this help
 	@echo "  DEBUG            -- debug flag, if any ($(DEBUG))"
 
 # Image URL to use all building/pushing image targets
-IMG_NAME ?= baremetal-operator
-IMG_TAG ?= latest
+IMG_NAME ?= registry.paas/cmetal/baremetal-operator
+IMG_TAG ?= v0.6.1
 IMG ?= $(IMG_NAME):$(IMG_TAG)
 
 ## --------------------------------------
@@ -204,6 +204,10 @@ build-e2e:
 .PHONY: manifests
 manifests: manifests-generate manifests-kustomize ## Generate manifests e.g. CRD, RBAC etc.
 
+.PHONY: manifests-basicauth
+manifests-basicauth: manifests-generate  manifests-basicauth-kustomize ## Generate manifests e.g. CRD, RBAC etc.
+
+
 .PHONY: manifests-generate
 manifests-generate: $(CONTROLLER_GEN)
 	cd apis; $(abspath $<) $(CRD_OPTIONS) rbac:roleName=manager-role webhook paths="./..." output:webhook:dir=../config/base/webhook/ output:crd:artifacts:config=../config/base/crds/bases
@@ -212,6 +216,10 @@ manifests-generate: $(CONTROLLER_GEN)
 .PHONY: manifests-kustomize
 manifests-kustomize: $(KUSTOMIZE)
 	$< build config/default > config/render/capm3.yaml
+
+.PHONY: manifests-basicauth-kustomize
+manifests-basicauth-kustomize: $(KUSTOMIZE)
+	$< build config/overlays/basic-auth_tls > config/render/capm3-basicauth.yaml
 
 .PHONY: set-manifest-image-bmo
 set-manifest-image-bmo: $(KUSTOMIZE) manifests
@@ -247,9 +255,13 @@ generate: $(CONTROLLER_GEN) ## Generate code
 ## Docker Targets
 ## --------------------------------------
 
-.PHONY: docker
-docker: generate manifests ## Build the docker image
+.PHONY: docker-with-proxy
+docker-with-proxy: generate manifests ## Build the docker image with proxy
 	docker build . -t ${IMG} --build-arg http_proxy=$(http_proxy) --build-arg https_proxy=$(https_proxy)
+
+.PHONY: docker-no-proxy
+docker-no-proxy: generate manifests ## Build the docker image without proxy
+	docker build . -t ${IMG}
 
 # Push the docker image
 .PHONY: docker-push

@@ -7,7 +7,7 @@ resources:
 
 components:
   - ../../components/basic-auth
-  - ../../components/tls
+#  - ../../components/tls
 # Example for how to generate the necessary secrets:
 # secretGenerator:
 #   - name: ironic-credentials

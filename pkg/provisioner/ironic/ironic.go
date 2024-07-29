@@ -858,8 +858,7 @@ func (p *ironicProvisioner) setDirectDeployUpdateOptsForNode(ironicNode *nodes.N
 		optValues["image_os_hash_algo"] = checksumType
 		optValues["image_os_hash_value"] = checksum
 	}
-	updater.
-		SetInstanceInfoOpts(optValues, ironicNode)
+	updater.SetInstanceInfoOpts(optValues, ironicNode)
 
 	if ironicNode.DeployInterface == "ramdisk" || ironicNode.DeployInterface == "custom-agent" {
 		updater.SetTopLevelOpt("deploy_interface", nil, ironicNode.DeployInterface)
@@ -907,9 +906,7 @@ func (p *ironicProvisioner) setCustomDeployUpdateOptsForNode(ironicNode *nodes.N
 		}
 	}
 
-	updater.
-		SetInstanceInfoOpts(optValues, ironicNode).
-		SetTopLevelOpt("deploy_interface", "custom-agent", ironicNode.DeployInterface)
+	updater.SetInstanceInfoOpts(optValues, ironicNode).SetTopLevelOpt("deploy_interface", "custom-agent", ironicNode.DeployInterface)
 }
 
 func (p *ironicProvisioner) getImageUpdateOptsForNode(ironicNode *nodes.Node, imageData *metal3api.Image, bootMode metal3api.BootMode, hasCustomDeploy bool, updater *clients.NodeUpdater) {
@@ -1048,8 +1045,7 @@ func (p *ironicProvisioner) GetFirmwareComponents() ([]metal3api.FirmwareCompone
 func (p *ironicProvisioner) setUpForProvisioning(ironicNode *nodes.Node, data provisioner.ProvisionData) (result provisioner.Result, err error) {
 	p.log.Info("starting provisioning", "node properties", ironicNode.Properties)
 
-	ironicNode, success, result, err := p.tryUpdateNode(ironicNode,
-		p.getUpdateOptsForNode(ironicNode, data))
+	ironicNode, success, result, err := p.tryUpdateNode(ironicNode, p.getUpdateOptsForNode(ironicNode, data))
 	if !success {
 		return result, err
 	}
@@ -1564,8 +1560,7 @@ func (p *ironicProvisioner) Provision(data provisioner.ProvisionData, forceReboo
 
 	case nodes.Active:
 		// provisioning is done
-		p.publisher("ProvisioningComplete",
-			fmt.Sprintf("Image provisioning completed for %s", data.Image.URL))
+		p.publisher("ProvisioningComplete", fmt.Sprintf("Image provisioning completed for %s", data.Image.URL))
 		p.log.Info("finished provisioning")
 		return operationComplete()
 

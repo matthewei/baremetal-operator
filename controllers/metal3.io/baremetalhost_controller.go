@@ -114,7 +114,7 @@ func (r *BareMetalHostReconciler) Reconcile(ctx context.Context, request ctrl.Re
 	}()
 
 	reqLogger := r.Log.WithValues("baremetalhost", request.NamespacedName)
-	reqLogger.Info("start")
+	reqLogger.Info("Reconciling BareMetalHost")
 
 	// Fetch the BareMetalHost
 	host := &metal3api.BareMetalHost{}
@@ -167,8 +167,7 @@ func (r *BareMetalHostReconciler) Reconcile(ctx context.Context, request ctrl.Re
 			"existingFinalizers", host.Finalizers,
 			"newValue", metal3api.BareMetalHostFinalizer,
 		)
-		host.Finalizers = append(host.Finalizers,
-			metal3api.BareMetalHostFinalizer)
+		host.Finalizers = append(host.Finalizers, metal3api.BareMetalHostFinalizer)
 		err := r.Update(ctx, host)
 		if err != nil {
 			return ctrl.Result{}, errors.Wrap(err, "failed to add finalizer")
@@ -1276,6 +1275,11 @@ func (r *BareMetalHostReconciler) actionProvisioning(prov provisioner.Provisione
 		info.host.Status.Provisioning.Image = *(info.host.Spec.Image)
 	}
 
+	if info.host.Spec.UserData != nil && (info.host.Status.Provisioning.UserData == nil || !reflect.DeepEqual(*info.host.Spec.UserData, *info.host.Status.Provisioning.UserData)) {
+		info.log.Info("updating userdata in status")
+		info.host.Status.Provisioning.UserData = info.host.Spec.UserData.DeepCopy()
+	}
+
 	if info.host.Spec.CustomDeploy != nil && (info.host.Status.Provisioning.CustomDeploy == nil || !reflect.DeepEqual(*info.host.Spec.CustomDeploy, *info.host.Status.Provisioning.CustomDeploy)) {
 		info.log.Info("updating custom deploy in status")
 		info.host.Status.Provisioning.CustomDeploy = info.host.Spec.CustomDeploy.DeepCopy()
@@ -1296,6 +1300,7 @@ func clearHostProvisioningSettings(host *metal3api.BareMetalHost) {
 		host.Status.Provisioning.RAID.SoftwareRAIDVolumes = nil
 	}
 	host.Status.Provisioning.Firmware = nil
+	host.Status.Provisioning.UserData = nil
 }
 
 func (r *BareMetalHostReconciler) actionDeprovisioning(prov provisioner.Provisioner, info *reconcileInfo) actionResult {
@@ -1350,6 +1355,7 @@ func (r *BareMetalHostReconciler) actionDeprovisioning(prov provisioner.Provisio
 	// so we transition to the next state.
 	info.host.Status.Provisioning.Image = metal3api.Image{}
 	info.host.Status.Provisioning.CustomDeploy = nil
+	info.host.Status.Provisioning.UserData = nil
 	clearHostProvisioningSettings(info.host)
 
 	return actionComplete{}
